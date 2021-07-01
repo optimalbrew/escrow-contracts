@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Smart contracts interacting with Kleros.",
   "main": "index.js",
-  "author": "Kleros",
+  "author": "Kleros (modified by optimalbrew)",
   "license": "MIT",
   "keywords": [
     "kleros",
@@ -14,7 +14,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kleros/escrow-contracts.git"
+    "url": "git+https://github.com/optimalbrew/escrow-contracts.git"
   },
   "private": false,
   "files": [
@@ -42,27 +42,21 @@
       "@commitlint/config-conventional"
     ]
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "kathari lint:js && solhint 'contracts/**/*.sol'",
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
-    }
-  },
+
   "devDependencies": {
     "@kleros/erc-792": "^7.0.0",
     "@kleros/ethereum-libraries": "^7.0.0",
-    "@kleros/kathari": "^0.13.3",
+    "@kleros/kathari": "^0.25.0",
     "@kleros/kleros-interaction": "^0.10.0",
-    "@nomiclabs/buidler": "^1.4.7",
-    "@nomiclabs/buidler-ethers": "^2.0.0",
-    "@nomiclabs/buidler-waffle": "^2.1.0",
-    "@nomiclabs/buidler-web3": "^1.3.4",
+    "@nomiclabs/hardhat-ethers": "^2.0.2",
+    "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@openzeppelin/test-helpers": "^0.5.6",
-    "chai": "^4.2.0",
+    "chai": "^4.3.4",
     "coveralls": "^3.0.2",
-    "ethereum-waffle": "^3.1.0",
-    "ethers": "^5.0.14",
+    "ethereum-waffle": "^3.4.0",
+    "ethers": "^5.4.0",
     "ganache-cli": "^6.3.0",
+    "hardhat": "^2.4.1",
     "husky": "^4.3.0",
     "npm-run-all": "^4.1.5",
     "pify": "^4.0.1",

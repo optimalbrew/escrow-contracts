@@ -59,7 +59,7 @@ contract MultipleArbitrableTokenTransactionWithAppeals is IArbitrable, IEvidence
      * @dev Tracks the state of eventual disputes.
      */
     struct TransactionDispute {
-        uint240 transactionID; // The transaction ID.
+        uint240 transactionID; // The transaction ID.//#pcar: 240? to save 2 bytes? u256 is cast as u240() in raiseDispute
         bool hasRuling; // Required to differentiate between having no ruling and a RefusedToRule ruling.
         Party ruling; // The ruling given by the arbitrator.
     }
@@ -72,8 +72,8 @@ contract MultipleArbitrableTokenTransactionWithAppeals is IArbitrable, IEvidence
     uint256 public immutable winnerStakeMultiplier; // Multiplier for calculating the appeal fee of the party that won the previous round.
     uint256 public immutable loserStakeMultiplier; // Multiplier for calculating the appeal fee of the party that lost the previous round.
 
-    /// @dev Stores the hashes of all transactions.
-    bytes32[] public transactionHashes;
+    /// @dev Stores the hashes of all transactions. hashes can be computed from storage or from call data (cheaper, see below)
+    bytes32[] public transactionHashes; // hence the name, multiple arb TXs
 
     /// @dev Maps a transactionID to its respective appeal rounds.
     mapping(uint256 => Round[]) public roundsByTransactionID;
