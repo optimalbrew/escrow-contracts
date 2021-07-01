@@ -53,7 +53,7 @@ contract MultipleArbitrableTransactionWithAppeals is IArbitrable, IEvidence {
     struct TransactionDispute {
         uint240 transactionID; // The transaction ID. //#pcar: 240? to save 2 bytes? u256 is cast as u240()in raiseDispute
         bool hasRuling; // Required to differentiate between having no ruling and a RefusedToRule ruling.
-        Party ruling; // The ruling given by the arbitrator.
+        Party ruling; // The ruling given by the arbitrator.git 
     }
 
     IArbitrator public immutable arbitrator; // Address of the arbitrator contract. TRUSTED.

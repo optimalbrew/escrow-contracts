@@ -44,7 +44,7 @@ contract MultipleArbitrableTokenTransactionWithAppeals is IArbitrable, IEvidence
         uint256 disputeID; // If dispute exists, the ID of the dispute.
         uint256 senderFee; // Total fees paid by the sender.
         uint256 receiverFee; // Total fees paid by the receiver.
-        uint256 lastInteraction; // Last interaction for the dispute procedure.
+        uint256 lastInteraction; // Last interaction for the dispute procedure (block timestamp)
         Status status;
     }
     
