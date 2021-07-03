@@ -1,4 +1,4 @@
-// Not needed with hardhat config
+// pcar. following not needed with hardhat config
 //const { ethers } = require('@nomiclabs/buidler')
 //const { readArtifact } = require('@nomiclabs/buidler/plugins')
 //const { solidity } = require('ethereum-waffle')
@@ -109,157 +109,13 @@ describe('MultipleArbitrableTokenTransactionWithAppeals contract', async () => {
 
     MULTIPLIER_DIVISOR = await contract.MULTIPLIER_DIVISOR()
     currentTime = await latestTime;
-    console.log('*****************');
-    console.log('Escrow contract deployed at ' + contract.address);
+    //console.log('*****************');
+    //console.log('Escrow contract deployed at ' + contract.address);
     //console.log('with centralized arbitrator ' + arbitrator.address);
     //console.log('and token address ' + token.address);
-    console.log('*****************');        
+    //console.log('*****************');        
     }); //beforeEach
 
-    describe('Initialization', () => {
-    it('Verify values in escrow constructor', async () => {
-      expect(await contract.arbitrator()).to.equal(
-        arbitrator.address,
-        'Arbitrator address not properly set'
-      )
-      expect(await contract.arbitratorExtraData()).to.equal(
-        arbitratorExtraData,
-        'Arbitrator extra data not properly set'
-      )
-      expect(await contract.feeTimeout()).to.equal(
-        feeTimeout,
-        'Fee timeout not properly set'
-      )
-      expect(await contract.sharedStakeMultiplier()).to.equal(
-        sharedMultiplier,
-        'Shared multiplier not properly set'
-      )
-      expect(await contract.winnerStakeMultiplier()).to.equal(
-        winnerMultiplier,
-        'Winner multiplier not properly set'
-      )
-      expect(await contract.loserStakeMultiplier()).to.equal(
-        loserMultiplier,
-        'Loser multiplier not properly set'
-      )
-        });
-    });
-
-    describe('Create new transaction', () => {
-        it('Should create a transaction when parameters are valid', async () => {
-          const metaEvidence = metaEvidenceUri
-          const tokensBefore = await getTokenBalances()
-    
-          const txPromise = contract
-            .connect(sender)
-            .createTransaction(
-              amount,
-              token.address,
-              timeoutPayment,
-              receiverAddress,
-              metaEvidence
-            )
-          const transactionCount = await contract
-            .connect(receiver)
-            .getCountTransactions()
-          const expectedTransactionID = 1
-          const contractBalance = await ethers.provider.getBalance(contract.address)
-    
-          const tokensAfter = await getTokenBalances()
-    
-          expect(transactionCount).to.equal(
-            BigNumber.from(expectedTransactionID),
-            'Invalid transactionCount'
-          )
-          await expect(txPromise)
-            .to.emit(contract, 'TransactionCreated')
-            .withArgs(
-              expectedTransactionID,
-              senderAddress,
-              receiverAddress,
-              token.address,
-              amount
-            )
-          await expect(txPromise)
-            .to.emit(contract, 'MetaEvidence')
-            .withArgs(expectedTransactionID, metaEvidence)
-          expect(contractBalance).to.equal(
-            BigNumber.from(0),
-            'Contract balance should be 0'
-          )
-          expect(tokensBefore.receiver).to.equal(
-            tokensAfter.receiver,
-            `"Receiver balance shouldn't change"`
-          )
-          expect(tokensBefore.sender - amount).to.equal(
-            tokensAfter.sender,
-            'Wrong sender balance'
-          )
-          expect(tokensBefore.contract + amount).to.equal(
-            tokensAfter.contract,
-            'Wrong contract balance'
-          )
-        })
-    
-        it('Should emit a correct TransactionStateUpdated event for the newly created transaction', async () => {
-          currentTime = await Date.now()/1000; //latestTime();
-          const [
-            _receipt,
-            transactionId,
-            transaction
-          ] = await createTransactionHelper(amount)
-    
-          expect(transactionId).to.equal(1, 'Invalid transaction ID')
-          expect(transaction.status).to.equal(
-            TransactionStatus.NoDispute,
-            'Invalid status'
-          )
-          expect(transaction.sender).to.equal(
-            senderAddress,
-            'Invalid sender address'
-          )
-          expect(transaction.receiver).to.equal(
-            receiverAddress,
-            'Invalid receiver address'
-          )
-          expect(Number(transaction.lastInteraction)).to.be.closeTo(
-            Math.floor(currentTime),
-            10, //within 10 seconds
-            'Invalid last interaction'
-          )
-          expect(transaction.amount).to.equal(amount, 'Invalid transaction amount')
-          expect(transaction.token).to.equal(token.address, 'Invalid token address')
-          expect(transaction.deadline).to.equal(
-            BigNumber.from(timeoutPayment).add(transaction.lastInteraction),
-            'Wrong deadline'
-          )
-          expect(transaction.disputeID).to.equal(0, 'Invalid dispute ID')
-          expect(transaction.senderFee).to.equal(0, 'Invalid senderFee')
-          expect(transaction.receiverFee).to.equal(0, 'Invalid receieverFee')
-        })
-    
-        it('Should store the proper hashed transaction state of the newly created transaction', async () => {
-          const [
-            _receipt,
-            transactionId,
-            transaction
-          ] = await createTransactionHelper(amount)
-    
-          // transactions IDs start at 1, so index in transactionHashes will be transactionId - 1.
-          const actualHash = await contract.transactionHashes(transactionId - 1)
-          const expectedHash = await contract.hashTransactionState(transaction)
-          const expectedHashCD = await contract.hashTransactionStateCD(transaction)
-    
-          expect(actualHash).to.equal(
-            expectedHash,
-            'Invalid transaction state hash'
-          )
-          expect(actualHash).to.equal(
-            expectedHashCD,
-            'Invalid transaction state hash when using calldata argument'
-          )
-        })
-      })
 
     /**********************
     * Helpers
