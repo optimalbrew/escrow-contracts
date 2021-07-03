@@ -1,8 +1,7 @@
-// not needed with hardhat config
-//const { ethers } = require('@nomiclabs/buidler')
-//const { readArtifact } = require('@nomiclabs/buidler/plugins')
-//const { solidity } = require('ethereum-waffle')
-const { expect } = require('chai')
+const { ethers } = require('@nomiclabs/buidler')
+const { readArtifact } = require('@nomiclabs/buidler/plugins')
+const { solidity } = require('ethereum-waffle')
+const { use, expect } = require('chai')
 
 const {
   getEmittedEvent,
@@ -13,7 +12,7 @@ const TransactionStatus = require('../src/entities/transaction-status')
 const TransactionParty = require('../src/entities/transaction-party')
 const DisputeRuling = require('../src/entities/dispute-ruling')
 
-//use(solidity)
+use(solidity)
 
 const { BigNumber } = ethers
 
@@ -57,8 +56,9 @@ describe('MultipleArbitrableTokenTransactionWithAppeals contract', async () => {
     senderAddress = await sender.getAddress()
     receiverAddress = await receiver.getAddress()
 
-    const arbitratorArtifact = await hre.artifacts.readArtifact(
-      './contracts/0.4.x/EnhancedAppealableArbitrator.sol:EnhancedAppealableArbitrator'
+    const arbitratorArtifact = await readArtifact(
+      './artifacts/0.4.x',
+      'EnhancedAppealableArbitrator'
     )
     const Arbitrator = await ethers.getContractFactory(
       arbitratorArtifact.abi,
@@ -74,7 +74,7 @@ describe('MultipleArbitrableTokenTransactionWithAppeals contract', async () => {
     // Make appeals go to the same arbitrator
     await arbitrator.changeArbitrator(arbitrator.address)
 
-    const tokenArtifact = await hre.artifacts.readArtifact('./contracts/0.4.x/ERC20Mock.sol:ERC20Mock')
+    const tokenArtifact = await readArtifact('./artifacts/0.4.x', 'ERC20Mock')
     const ERC20Token = await ethers.getContractFactory(
       tokenArtifact.abi,
       tokenArtifact.bytecode
@@ -82,8 +82,9 @@ describe('MultipleArbitrableTokenTransactionWithAppeals contract', async () => {
     token = await ERC20Token.deploy(senderAddress, amount * 10) // (initial account, initial balance)
     await token.deployed()
 
-    const contractArtifact = await hre.artifacts.readArtifact(
-      './contracts/0.7.x/MultipleArbitrableTokenTransactionWithAppeals.sol:MultipleArbitrableTokenTransactionWithAppeals'
+    const contractArtifact = await readArtifact(
+      './artifacts/0.7.x',
+      'MultipleArbitrableTokenTransactionWithAppeals'
     )
     const MultipleArbitrableTransaction = await ethers.getContractFactory(
       contractArtifact.abi,
@@ -105,13 +106,7 @@ describe('MultipleArbitrableTokenTransactionWithAppeals contract', async () => {
     await approveTx.wait()
 
     MULTIPLIER_DIVISOR = await contract.MULTIPLIER_DIVISOR()
-    currentTime = await latestTime;
-    console.log('*****************');
-    console.log('Escrow contract deployed at ' + contract.address);
-    console.log('with centralized arbitrator ' + arbitrator.address);
-    console.log('and token address ' + token.address);
-    console.log('*****************');        
-    })
+    currentTime = await latestTime()
   })
 
   describe('Initialization', () => {
