@@ -24,3 +24,15 @@ Focus attention on 2 contracts
 
 ## Initial testing
 Move old tests (buidler) to a new directory. And gradually bring them in pars using the Hardhat pattern.
+
+Some changes are needed for the tests. Not logical ones of course. Thus far, the main changes are with respect to **time**, as in **block timestamps**.
+
+Some tests rely on using `latest` helper for latest block timestamp. These fail when workign with the `hre`. This can be fixed by just using the current timestamp `Date.now()`. Or use hardhat's RPC
+
+Some tests rely on `increaseTime()` helper to advance the next block's time stamp. Replace these with the following to advance next block's timestamp (e.g. by 100 seconds)
+
+```
+await hre.network.provider.send("evm_increaseTime", [100]);
+
+```
+as in *ganache*, this is approximate. Hardhat has a method for exact time stamp, called `evm_setNextBlockTimestamp`. 
