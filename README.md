@@ -1,6 +1,8 @@
 # Escrow Contracts
 
-**Note:** this is not the `master` branch (which is unchanged from the forked repo). This branch is mostly about migrating from buidler to hardhat for testing and development.
+**Note:** this is not the `master` branch (which is unchanged from the forked repo). This branch, `hhmig`, is a simple migration of the dev and test setup from buidler to hardhat.
+
+## Architecture
 
 Focus attention on 2 contracts
 1. `contracts/0.7.x/MultipleArbitrableTokenTransactionWithAppeals.sol`
@@ -22,7 +24,11 @@ Focus attention on 2 contracts
     * So this uses only 1 (old version4) `Arbitrable` interface, instead of the more recent set of 3 ERC-792 ones used for the escrow.
     * so this should be updated to the same pattern of 3 (or perhaps 2: `IArbitrator` and `IEvidence`), **not** `Arbitrable0.4`.
 
-## Testing
+## Usage
+
+Install node (14+). Then npm install and 
+
+
 There is no front end code. The tests are reasonably well documented, so contract interactions are simple to follow. Only the tests relevant for the token transactions are migrated.
 
 run
@@ -38,9 +44,15 @@ npx hardhat test test/tokenTest.js // main interactions
 npx hardhat test test/tokenGasCostTest.js // for gas cost related tests
 ```
 
+or deploy to local hardhat network which is not as useful as the tests (without a UI for interaction)
+
+```
+npx hardhat run scripts/deployAll.js
+```
+
 ### Note on mods to old tests
 
-Move old tests (buidler) to a new directory (`oldtest`). Then modify the two relevant for token transactions to work with Hardhat. These are in the usual `test` directory.
+Move old tests (buidler) to a new directory (`oldtest`). Then modify the two tests relevant for token transactions to work with Hardhat. These are in the usual `test` directory.
 
 The main changes are with respect to **reading artifacts** and **block timestamps**. Both can be fixed by using hardhat runtime environment i.e. `hre` methods.
 
