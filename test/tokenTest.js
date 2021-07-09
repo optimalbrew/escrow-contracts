@@ -108,7 +108,7 @@ describe('MultipleArbitrableTokenTransactionWithAppeals contract', async () => {
     await approveTx.wait()
 
     MULTIPLIER_DIVISOR = await contract.MULTIPLIER_DIVISOR()
-    currentTime = await latestTime;
+    currentTime = await getLatestTS();
     //console.log('*****************');
     //console.log('Escrow contract deployed at ' + contract.address);
     //console.log('with centralized arbitrator ' + arbitrator.address);
@@ -202,7 +202,7 @@ describe('MultipleArbitrableTokenTransactionWithAppeals contract', async () => {
       })
     
       it('Should emit a correct TransactionStateUpdated event for the newly created transaction', async () => {
-        currentTime =  Date.now(); //latestTime();
+        currentTime =  await getLatestTS();  //latestTime();
         const [
           _receipt,
           transactionId,
@@ -223,8 +223,8 @@ describe('MultipleArbitrableTokenTransactionWithAppeals contract', async () => {
           'Invalid receiver address'
         )
         expect(Number(transaction.lastInteraction)).to.be.closeTo(
-          currentTime/1000,
-          50, //pcar within 50 seconds changed from 10, which does not always work. Random mining timestamps?
+          currentTime,
+          10,
           'Invalid last interaction'
         )
         expect(transaction.amount).to.equal(amount, 'Invalid transaction amount')
@@ -260,7 +260,8 @@ describe('MultipleArbitrableTokenTransactionWithAppeals contract', async () => {
         )
         })
       }) //end desc create new tx
-      
+  
+  
   describe('Reimburse sender', () => {
     it('Should reimburse the sender and update the hash correctly', async () => {
       const [
@@ -309,7 +310,7 @@ describe('MultipleArbitrableTokenTransactionWithAppeals contract', async () => {
         transaction
       ] = await createTransactionHelper(amount)
 
-      currentTime = Date.now();// await latestTime()
+      currentTime = await getLatestTS();;// await latestTime()
       const reimburseTx = await contract
         .connect(receiver)
         .reimburse(transactionId, transaction, amount)
@@ -335,8 +336,8 @@ describe('MultipleArbitrableTokenTransactionWithAppeals contract', async () => {
         'Invalid receiver address'
       )
       expect(Number(rTransaction.lastInteraction)).to.be.closeTo(
-        currentTime/1000,
-        50,
+        currentTime,
+        10,
         'Invalid last interaction'
       )
       expect(rTransaction.amount).to.equal(0, 'Invalid transaction amount')
@@ -383,7 +384,7 @@ describe('MultipleArbitrableTokenTransactionWithAppeals contract', async () => {
       ).to.be.revertedWith('Maximum reimbursement available exceeded.')
 
       // Reimburse half of the total amount
-      currentTime = Date.now(); // await latestTime()
+      currentTime = await getLatestTS(); // await latestTime()
       const reimburseTx = await contract
         .connect(receiver)
         .reimburse(transactionId, transaction, 500)
@@ -452,7 +453,7 @@ describe('MultipleArbitrableTokenTransactionWithAppeals contract', async () => {
         transaction
       ] = await createTransactionHelper(amount)
 
-      currentTime = Date.now(); //await latestTime()
+      currentTime = await getLatestTS();  //await latestTime()
       const payTx = await contract
         .connect(sender)
         .pay(transactionId, transaction, amount)
@@ -480,8 +481,8 @@ describe('MultipleArbitrableTokenTransactionWithAppeals contract', async () => {
         'Invalid receiver address'
       )
       expect(Number(payTransaction.lastInteraction)).to.be.closeTo(
-        currentTime/1000,
-        70,
+        currentTime,
+        10,
         'Invalid last interaction'
       )
       expect(payTransaction.amount).to.equal(0, 'Invalid transaction amount')
@@ -526,7 +527,7 @@ describe('MultipleArbitrableTokenTransactionWithAppeals contract', async () => {
       ).to.be.revertedWith('Maximum amount available for payment exceeded.')
 
       // Reimburse half of the total amount
-      //currentTime = Date.now(); //await latestTime()
+      //currentTime = await getLatestTS(); //await latestTime()
       const payTx = await contract
         .connect(sender)
         .pay(transactionId, transaction, 500)
@@ -601,7 +602,7 @@ describe('MultipleArbitrableTokenTransactionWithAppeals contract', async () => {
 
       //await increaseTime(timeoutPayment)
 
-      //currentTime = await latestTime()
+      //currentTime = await getLatestTS();
       await hre.network.provider.send("evm_increaseTime", [100]);
       const executeTx = await contract
         .connect(other)
@@ -674,7 +675,7 @@ describe('MultipleArbitrableTokenTransactionWithAppeals contract', async () => {
       //await hre.network.provider.send("evm_setNextBlockTimestamp", [Date.now()/1000 + 100]); //try
       await hre.network.provider.send("evm_increaseTime", [timeoutPayment]);  
 
-      //currentTime = Date.now(); //await latestTime()
+      //currentTime = await getLatestTS(); //await latestTime()
       const executeTx = await contract
         .connect(other)
         .executeTransaction(transactionId, transaction)
@@ -869,7 +870,7 @@ describe('MultipleArbitrableTokenTransactionWithAppeals contract', async () => {
         transactionId,
         transaction
       ] = await createTransactionHelper(amount)
-      currentTime = Date.now()/1000; //await latestTime()
+      currentTime = await getLatestTS(); //await latestTime()
       const [
         disputeID,
         disputeTransactionId,
@@ -901,8 +902,8 @@ describe('MultipleArbitrableTokenTransactionWithAppeals contract', async () => {
         'Invalid receiver address'
       )
       expect(Number(ruleTransaction.lastInteraction)).to.be.closeTo(
-        Date.now()/1000,
-        1000,  //#mish this was 10 seconds.. increased to 1000, the gap was over 700 seconds! because we keep advancing the blocktimestamp evm_increaseTime?
+        currentTime,
+        10,  
         'Invalid last interaction'
       )
       expect(ruleTransaction.amount).to.equal(0, 'Invalid transaction amount')
@@ -2621,6 +2622,11 @@ describe('MultipleArbitrableTokenTransactionWithAppeals contract', async () => {
     return balances
   }
 
-
+  async function getLatestTS(){
+    const blkNo = await hre.ethers.provider.getBlockNumber();
+    const blk = await hre.ethers.provider.getBlock(blkNo);
+    //console.log(blk.timestamp)
+    return Number(blk.timestamp) 
+  }
 
 }); //describe0
