@@ -2,7 +2,56 @@
 
 **Note:** this is not the `master` branch (which is unchanged from the forked repo). This branch, `hhmig`, is a simple migration of the dev and test setup from buidler to hardhat.
 
-## Architecture
+
+
+
+## Install and Test
+
+Install node (14+). Then clone this repo and check that you are in the `hhmig` branch (which is the default on github)
+
+```
+git branch // should be *hhmig
+
+npm install
+```
+
+There is no front end code. The tests are reasonably well documented, so contract interactions are simple to follow. Only the tests relevant for the token transactions are migrated.
+
+```
+npx hardhat test //all tests
+
+// or
+
+npx hardhat test test/tokenTest.js // main interactions
+npx hardhat test test/tokenGasCostTest.js // for gas cost related tests
+```
+
+Can deploy contracts to local hardhat network which is not as useful as the tests (without a UI for interaction). But can be useful when working with a test network (modify hardhat config)
+
+```
+npx hardhat run scripts/deployAll.js
+```
+
+
+### Note on mods made to old tests
+
+The old tests (buidler) have been moved a new directory (`oldtest`). Then modified two tests relevant for token transactions to work with Hardhat. These are in the usual `test` directory.
+
+The main changes are with respect to **reading artifacts** and **block timestamps**. Both can be fixed by using hardhat runtime environment i.e. `hre` methods.
+
+For example, reading artifacts uses the `hre.artifacts.readArtifact()` method, which is slightly different from the buidler version. 
+
+Some tests rely on `increaseTime()` helper to advance the next block's time stamp. Replace these with the following to advance next block's timestamp
+
+```
+await hre.network.provider.send("evm_increaseTime", [100]); //to inc timestamp by 100 sec
+```
+as in *ganache*, this is approximate. Hardhat has a method for exact time stamp, called `evm_setNextBlockTimestamp`. 
+
+The old tests rely on OpenZep time helper for current block timestamps. A new helper was added directly to the tests using `hre.ethers.provider` methods instead.
+
+
+## Notes on architecture
 
 Focus attention on 2 contracts
 1. `contracts/0.7.x/MultipleArbitrableTokenTransactionWithAppeals.sol`
@@ -21,48 +70,5 @@ Focus attention on 2 contracts
     EnhancedAppealableArbitrator <- AppealableArbitrator <-|
                                                              <- CentralizedArbitrator <- Arbitrator <- Arbitrable <-IArbitrable0.4                 
     ```
-    * So this uses only 1 (old version4) `Arbitrable` interface, instead of the more recent set of 3 ERC-792 ones used for the escrow.
-    * so this should be updated to the same pattern of 3 (or perhaps 2: `IArbitrator` and `IEvidence`), **not** `Arbitrable0.4`.
-
-## Usage
-
-Install node (14+). Then npm install and 
-
-
-There is no front end code. The tests are reasonably well documented, so contract interactions are simple to follow. Only the tests relevant for the token transactions are migrated.
-
-run
-
-```
-npx hardhat test //all tests
-
-```
-or
-
-```
-npx hardhat test test/tokenTest.js // main interactions
-npx hardhat test test/tokenGasCostTest.js // for gas cost related tests
-```
-
-or deploy to local hardhat network which is not as useful as the tests (without a UI for interaction)
-
-```
-npx hardhat run scripts/deployAll.js
-```
-
-### Note on mods to old tests
-
-Move old tests (buidler) to a new directory (`oldtest`). Then modify the two tests relevant for token transactions to work with Hardhat. These are in the usual `test` directory.
-
-The main changes are with respect to **reading artifacts** and **block timestamps**. Both can be fixed by using hardhat runtime environment i.e. `hre` methods.
-
-Some tests rely on `increaseTime()` helper to advance the next block's time stamp. Replace these with the following to advance next block's timestamp
-
-```
-await hre.network.provider.send("evm_increaseTime", [100]); //to inc timestamp by 100 sec
-```
-as in *ganache*, this is approximate. Hardhat has a method for exact time stamp, called `evm_setNextBlockTimestamp`. 
-
-Increasing the blocktime in multiple tests widens the gap between system time (current time).
-
-The old tests rely on OpenZep time helper for current block timestamps. A new helper was added directly to the tests using `hre.ethers.provider` methods instead.
+    * This uses only 1 (old version4) `Arbitrable` interface, instead of the more recent set of 3 ERC-792 ones used for the escrow.
+    * This should be updated to the same pattern of 3 (or perhaps 2: `IArbitrator` and `IEvidence`), **not** `Arbitrable0.4`.
